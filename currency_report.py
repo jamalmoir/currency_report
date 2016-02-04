@@ -20,6 +20,8 @@ def main():
             else:
                 rates_to_watch = [new_tracker]
                 write_file(rates_to_watch, "rates_to_watch.pkl")
+        else:
+            print("Error: Invalid currency codes.")
     else:
         print("Error: Invalid number of arguments.")
 
