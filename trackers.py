@@ -11,7 +11,7 @@ class CurrencyTracker:
         self.last_high = rate
         self.all_time_low = rate
         self.last_low = rate
-        seld.data = [rate]
+        self.data = [rate]
 
     def add_rate(self, rate):
         self.data.append(rate)
