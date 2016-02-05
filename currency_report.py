@@ -4,20 +4,30 @@ import os.path
 import urllib.request
 from trackers import CurrencyTracker
 from datetime import datetime
+from decimal import Decimal
 
 def main():
-    if len(sys.argv) == 0:
-        print("test")
-        #TODO: currency updating and emailing
+    file_name = 'rates_to_watch.pkl'
+
+    if len(sys.argv) == 1:
+        if os.path.isfile(file_name):
+            rates_to_watch = read_file(file_name)
+
+            for rate in rates_to_watch:
+                rate.add_rate(grab_rate(rate.get_currencies()))
+        else:
+            print("Error: No currencies are being tracked.")
+            print("Please run the following command:")
+            print("python currency_report.py CURRENCY1 CURRENCY2")
+            print("eg. python currency_report.py GBP JPY")
     elif len(sys.argv) == 3:
         valid_currencies = open('currencies.txt').read()
-        file_name = 'rates_to_watch.pkl'
 
         if sys.argv[1] in valid_currencies and sys.argv[2] in valid_currencies:
             currencies = (sys.argv[1], sys.argv[2])
             new_tracker = CurrencyTracker(currencies, grab_rate(currencies))
 
-            if os.path.isfile('rates_to_watch.pkl'):
+            if os.path.isfile(file_name):
                 rates_to_watch = read_file(file_name)
                 rates_to_watch.append(new_tracker)
                 write_file(file_name, rates_to_watch)
@@ -43,8 +53,8 @@ def grab_rate(currencies):
             (currencies[0], currencies[1]))
     response = urllib.request.urlopen(url)
     data = response.read().decode('utf-8')
-    rate = (datetime.now(), data[:-1])
-    print("Current rate: %s" % (rate[1]))
+    rate = (datetime.now(), Decimal(data[:-1]))
+    print("Current rate: %s" % (str(rate[1])))
     return rate
 
 if __name__ == '__main__':

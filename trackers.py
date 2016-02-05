@@ -16,17 +16,10 @@ class CurrencyTracker:
     def add_rate(self, rate):
         self.data.append(rate)
 
-        if rate[1] > self.last_high[1]:
-            self.last_high = rate
-
-            if rate[1] > self.all_time_high[1]:
-                self.all_time_high = rate
-
-        elif rate[1] < self.last_low:
-            self.last_low = rate
-
-            if rate[1] < self.all_time_low[1]:
-                self.all_time_low = rate
+        if rate[1] > self.all_time_high[1]:
+            self.all_time_high = rate
+        elif rate[1] < self.all_time_low[1]:
+            self.all_time_low = rate
 
         self.updated = datetime.now()
 
