@@ -1,7 +1,6 @@
 import sys
 import pickle
 import os.path
-import csv
 import urllib.request
 from trackers import CurrencyTracker
 from datetime import datetime
@@ -11,42 +10,39 @@ def main():
         print("test")
         #TODO: currency updating and emailing
     elif len(sys.argv) == 3:
-        valid_currencies = open("currencies.txt").read()
+        valid_currencies = open('currencies.txt').read()
 
         if sys.argv[1] in valid_currencies and sys.argv[2] in valid_currencies:
             currencies = (sys.argv[1], sys.argv[2])
             new_tracker = CurrencyTracker(currencies, grab_rate(currencies))
 
-            if os.path.isfile("rates_to_watch.pkl"):
-                rates_to_watch = read_file("rates_to_watch.pkl")
+            if os.path.isfile('rates_to_watch.pkl'):
+                rates_to_watch = read_file('rates_to_watch.pkl')
                 rates_to_watch.append(new_tracker)
-                write_file(rates_to_watch, "rates_to_watch.pkl")
+                write_file(rates_to_watch, 'rates_to_watch.pkl')
             else:
                 rates_to_watch = [new_tracker]
-                write_file(rates_to_watch, "rates_to_watch.pkl")
+                write_file(rates_to_watch, 'rates_to_watch.pkl')
         else:
             print("Error: Invalid currency codes.")
     else:
         print("Error: Invalid number of arguments. %s argument(s)." % (len(sys.argv)))
 
 def read_file(file_name):
-    pkl = open(file_name, "rb")
-    contents = pickle.load(pkl)
-    pkl.close()
-    return contents
+    with open(file_name, 'rb') as pkl:
+        return pickle.load(pkl)
 
 def write_file(file_name, contents):
-    pkl = open(file_name, "wb")
-    pickle.dump(contents, pkl)
-    pkl.close
+    with open(file_name, 'wb') as pkl:
+        pickle.dump(contents, pkl)
 
 def grab_rate(currencies):
-    url = "http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&s=%s%s=X" % (currencies[0], currencies[1])
+    url = 'http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&s=%s%s=X' % (currencies[0], currencies[1])
     response = urllib.request.urlopen(url)
-    data = response.read().decode("utf-8")
+    data = response.read().decode('utf-8')
     rate = (datetime.now(), data[:-1])
     print(rate)
     return rate
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
