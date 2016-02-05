@@ -1,10 +1,14 @@
 import sys
 import pickle
 import os.path
+import csv
+import urllib.request
 from trackers import CurrencyTracker
+from datetime import datetime
 
 def main():
     if len(sys.argv) == 0:
+        print("test")
         #TODO: currency updating and emailing
     elif len(sys.argv) == 2:
         valid_currencies = open("currencies.txt").read()
@@ -26,15 +30,20 @@ def main():
         print("Error: Invalid number of arguments.")
 
 def read_file(file_name):
-    pkl = open(file_name)
+    pkl = open(file_name, "rb")
     contents = pickle.load(pkl)
     pkl.close()
     return contents
 
 def write_file(file_name, contents):
-    pkl = open(file_name, "w")
+    pkl = open(file_name, "wb")
     pickle.dump(contents, pkl)
     pkl.close
 
 def grab_rate(currencies):
-
+    url = "http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&s=%s%s=X" % (currencies[0], currencies[1])
+    response = urllib2.urlopen(url)
+    reader = csv.reader(response)
+    rate = (datetime.now(), reader.next())
+    print(rate)
+    return rate
