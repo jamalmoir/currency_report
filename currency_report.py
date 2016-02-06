@@ -5,9 +5,13 @@ import urllib.request
 from trackers import CurrencyTracker
 from datetime import datetime
 from decimal import Decimal
+from smtplib import SMTP_SSL as SMTP
+from email.mime.text import MIMEText
 
 def main():
     file_name = 'rates_to_watch.pkl'
+    email = ''
+    password = ''
 
     if len(sys.argv) == 1:
         if os.path.isfile(file_name):
@@ -15,6 +19,8 @@ def main():
 
             for rate in rates_to_watch:
                 rate.add_rate(grab_rate(rate.get_currencies()))
+
+            send_email(rates_to_watch, email, password)
         else:
             print("Error: No currencies are being tracked.")
             print("Please run the following command:")
@@ -56,6 +62,39 @@ def grab_rate(currencies):
     rate = (datetime.now(), Decimal(data[:-1]))
     print("Current rate: %s" % (str(rate[1])))
     return rate
+
+def send_email(rates_to_watch, email, password):
+    text = ""
+
+    for rate in rates_to_watch:
+        cur_rate = rate.get_current_rate()[1]
+
+        report = """
+        ----%s----
+        Rate: %s
+        10: %s
+        100: %s
+        1,000: %s
+        10,000: %s
+        \n
+        """ % (rate.get_currencies(), cur_rate, cur_rate * 10, cur_rate * 100,
+                cur_rate * 1000, cur_rate * 10000)
+
+        text += report
+
+    msg = MIMEText(text, 'plain')
+    msg['Subject'] = "Currency Report"
+    msg['To'] = email
+
+    try:
+        connection = SMTP('smtp.gmail.com')
+        connection.login(email, password)
+        try:
+            connection.sendmail(email, email, msg.as_string())
+        finally:
+            connection.close()
+    except Exception as e:
+        print("Error: Email failed to send %s" % (str(e)))
 
 if __name__ == '__main__':
     main()

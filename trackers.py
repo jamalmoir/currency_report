@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 class CurrencyTracker:
     """CurrencyTracker stores information on a currency exchange rate"""
