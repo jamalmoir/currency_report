@@ -8,6 +8,7 @@ from decimal import Decimal
 from smtplib import SMTP_SSL as SMTP
 from email.mime.text import MIMEText
 
+
 def main():
     file_name = 'rates_to_watch.pkl'
     email = ''
@@ -44,30 +45,35 @@ def main():
             print("Error: Invalid currency codes.")
     else:
         print("Error: Invalid number of arguments. %s argument(s)." %
-                (len(sys.argv)))
+              (len(sys.argv)))
+
 
 def read_file(file_name):
     with open(file_name, 'rb') as pkl:
         return pickle.load(pkl)
 
+
 def write_file(file_name, contents):
     with open(file_name, 'wb') as pkl:
         pickle.dump(contents, pkl)
 
+
 def grab_rate(currencies):
     url = ('http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&s=%s%s=X' %
-            (currencies[0], currencies[1]))
+           (currencies[0], currencies[1]))
     response = urllib.request.urlopen(url)
     data = response.read().decode('utf-8')
     rate = (datetime.now(), Decimal(data[:-1]))
     print("Current rate: %s" % (str(rate[1])))
     return rate
 
+
 def send_email(rates_to_watch, email, password):
     text = ""
 
     for rate in rates_to_watch:
         cur_rate = rate.get_current_rate()[1]
+        streak = rate.get_streak()
 
         report = """
         ----%s----
@@ -78,8 +84,16 @@ def send_email(rates_to_watch, email, password):
         10,000: %s
         \n
         """ % (rate.get_currencies(), cur_rate, cur_rate * 10, cur_rate * 100,
-                cur_rate * 1000, cur_rate * 10000)
+               cur_rate * 1000, cur_rate * 10000)
 
+        if streak > 0:
+            streak = ("This exchagne rate has been increasing for %s day(s).\n" %
+                      (streak))
+        elif streak < 0:
+            streak = ("This exchange rate has been decreasing for %s day(s).\n" %
+                      (streak * -1))
+
+        report += streak
         text += report
 
     msg = MIMEText(text, 'plain')

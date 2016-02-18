@@ -9,9 +9,8 @@ class CurrencyTracker:
         self.created = datetime.now()
         self.updated = datetime.now()
         self.all_time_high = rate
-        self.last_high = rate
         self.all_time_low = rate
-        self.last_low = rate
+        self.streak = 0
         self.data = [rate]
 
     def add_rate(self, rate):
@@ -22,6 +21,17 @@ class CurrencyTracker:
         elif rate[1] < self.all_time_low[1]:
             self.all_time_low = rate
 
+        if self.streak >= 0:
+            if rate[1] >= self.data[len(self.data) - 2][1]:
+                self.streak += 1
+            else:
+                self.streak = -1
+        elif self.streak < 0:
+            if rate[1] <= self.data[len(self.data) - 2][1]:
+                self.streak -= 1
+            else:
+                self.streak = + 1
+
         self.updated = datetime.now()
 
     def get_current_rate(self):
@@ -30,14 +40,11 @@ class CurrencyTracker:
     def get_all_time_high(self):
         return self.all_time_high
 
-    def get_last_high(self):
-        return self.last_high
-
     def get_all_time_low(self):
         return self.all_time_low
 
-    def get_last_low(self):
-        return self.last_low
+    def get_streak(self):
+        return self.streak
 
     def get_currencies(self):
         return self.CURRENCIES
