@@ -44,8 +44,8 @@ def main():
         else:
             print("Error: Invalid currency codes.")
     else:
-        print("Error: Invalid number of arguments. %s argument(s)." %
-              (len(sys.argv)))
+        print("Error: Invalid number of arguments. {count}
+              argument(s).".format(count=len(sys.argv)))
 
 
 def read_file(file_name):
@@ -59,12 +59,13 @@ def write_file(file_name, contents):
 
 
 def grab_rate(currencies):
-    url = ('http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&s=%s%s=X' %
-           (currencies[0], currencies[1]))
+    url_template = ('http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&'
+                    's={cur1}{cur2}=X')
+    url = url_template.format(cur1=currencies[0], cur2=currencies[1])
     response = urllib.request.urlopen(url)
     data = response.read().decode('utf-8')
     rate = (datetime.now(), Decimal(data[:-1]))
-    print("Current rate: %s" % (str(rate[1])))
+    print("Current rate: {rate}".format(rate=str(rate[1])))
     return rate
 
 
@@ -76,24 +77,29 @@ def send_email(rates_to_watch, email, password):
         streak = rate.get_streak()
 
         report = """
-        ----%s----
-        Rate: %s
-        10: %s
-        100: %s
-        1,000: %s
-        10,000: %s
+        ----{currencies}----
+        Rate: {rate}
+        10: {x10}
+        100: {x100}
+        1,000: {x1000}
+        10,000: {x10000}
         \n
-        """ % (rate.get_currencies(), cur_rate, cur_rate * 10, cur_rate * 100,
-               cur_rate * 1000, cur_rate * 10000)
+        """.format(currencies=rate.get_currencies(), rate=cur_rate,
+                   x10=cur_rate * 10, x100=cur_rate * 100,
+                   x1000=cur_rate * 1000, x10000=cur_rate * 10000)
 
         if streak > 0:
-            streak = ("This exchagne rate has been increasing for %s day(s).\n" %
-                      (streak))
+            streak_text = ("This exchange rate has been increasing for {count}"
+                           "day(s).\n"
+                           ).format(count=streak)
         elif streak < 0:
-            streak = ("This exchange rate has been decreasing for %s day(s).\n" %
-                      (streak * -1))
+            streak_text = ("This exchange rate has been decreasing for {count}"
+                           "day(s).\n"
+                           ).format(count=streak * -1)
+        else:
+            streak_text = "No change."
 
-        report += streak
+        report += streak_text
         text += report
 
     msg = MIMEText(text, 'plain')
@@ -108,7 +114,7 @@ def send_email(rates_to_watch, email, password):
         finally:
             connection.close()
     except Exception as e:
-        print("Error: Email failed to send %s" % (str(e)))
+        print("Error: Email failed to send {error}".format(error=str(e)))
 
 if __name__ == '__main__':
     main()
