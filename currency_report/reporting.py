@@ -75,7 +75,7 @@ def send_email(rates_to_watch, email, password):
 
     for rate in rates_to_watch:
         cur_rate = rate.get_current_rate()[1]
-        streak = rate.get_streak()
+        streak_dir, streak_mag = rate.get_streak()
 
         report = """
         ----{currencies}----
@@ -89,16 +89,17 @@ def send_email(rates_to_watch, email, password):
                    x10=cur_rate * 10, x100=cur_rate * 100,
                    x1000=cur_rate * 1000, x10000=cur_rate * 10000)
 
-        if streak > 0:
+        if streak_dir > 0:
             streak_text = ("This exchange rate has been increasing for {count}"
                            "day(s).\n"
-                           ).format(count=streak)
-        elif streak < 0:
+                           ).format(count=streak_mag)
+        elif streak_dir < 0:
             streak_text = ("This exchange rate has been decreasing for {count}"
                            "day(s).\n"
-                           ).format(count=streak * -1)
+                           ).format(count=streak_mag)
         else:
-            streak_text = "No change."
+            streak_text = ("This exchange rate has been stable for {count}"
+                           "day(s).\n)").format(count=streak_mag)
 
         report += streak_text
         text += report

@@ -10,28 +10,44 @@ class CurrencyTracker:
         self.updated = datetime.now()
         self.all_time_high = rate
         self.all_time_low = rate
-        self.streak = 0
+        self.streak = (0,0)
         self.data = [rate]
 
     def add_rate(self, new_rate):
-        self.data.append(new_rate)
+        print(str(self.streak))
+        direction, magnitude = self.streak
+        high_time, high_val = self.all_time_high
+        prev_time, prev_val = self.data[-1]
+        rate_time, rate_val = new_rate
 
-        if new_rate[1] > self.all_time_high[1]:
+        if rate_val > high_val:
             self.all_time_high = new_rate
-        elif new_rate[1] < self.all_time_low[1]:
+        elif rate_val < high_val:
             self.all_time_low = new_rate
 
-        if self.streak >= 0:
-            if new_rate[1] >= self.data[len(self.data) - 2][1]:
-                self.streak += 1
+        if direction > 0:
+            if rate_val > prev_val:
+                self.streak = (1, magnitude + 1)
+            elif rate_val < prev_val:
+                self.streak = (-1, 1)
             else:
-                self.streak = -1
-        elif self.streak < 0:
-            if new_rate[1] <= self.data[len(self.data) - 2][1]:
-                self.streak -= 1
+                self.streak = (0,1)
+        elif direction < 0:
+            if rate_val < prev_val:
+                self.streak = (-1, magnitude + 1)
+            elif rate_val > prev_val:
+                self.streak = (1, 1)
             else:
-                self.streak = + 1
+                self.streak = (0, 1)
+        else:
+            if rate_val == prev_val:
+                self.streak = (0, magnitude + 1)
+            elif rate_val > prev_val:
+                self.streak = (1, 1)
+            else:
+                self.streak = (-1, 1)
 
+        self.data.append(new_rate)
         self.updated = datetime.now()
 
     def get_current_rate(self):
