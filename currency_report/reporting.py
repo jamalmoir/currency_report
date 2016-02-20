@@ -20,6 +20,7 @@ def main():
 
             for rate in rates_to_watch:
                 rate.add_rate(grab_rate(rate.get_currencies()))
+                write_file(file_name, rates_to_watch)
 
             send_email(rates_to_watch, email, password)
         else:
@@ -44,8 +45,8 @@ def main():
         else:
             print("Error: Invalid currency codes.")
     else:
-        print("Error: Invalid number of arguments. {count}
-              argument(s).".format(count=len(sys.argv)))
+        print("Error: Invalid number of arguments. {count}"
+              "argument(s).".format(count=len(sys.argv)))
 
 
 def read_file(file_name):

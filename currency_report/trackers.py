@@ -13,21 +13,21 @@ class CurrencyTracker:
         self.streak = 0
         self.data = [rate]
 
-    def add_rate(self, rate):
-        self.data.append(rate)
+    def add_rate(self, new_rate):
+        self.data.append(new_rate)
 
-        if rate[1] > self.all_time_high[1]:
-            self.all_time_high = rate
-        elif rate[1] < self.all_time_low[1]:
-            self.all_time_low = rate
+        if new_rate[1] > self.all_time_high[1]:
+            self.all_time_high = new_rate
+        elif new_rate[1] < self.all_time_low[1]:
+            self.all_time_low = new_rate
 
         if self.streak >= 0:
-            if rate[1] >= self.data[len(self.data) - 2][1]:
+            if new_rate[1] >= self.data[len(self.data) - 2][1]:
                 self.streak += 1
             else:
                 self.streak = -1
         elif self.streak < 0:
-            if rate[1] <= self.data[len(self.data) - 2][1]:
+            if new_rate[1] <= self.data[len(self.data) - 2][1]:
                 self.streak -= 1
             else:
                 self.streak = + 1
