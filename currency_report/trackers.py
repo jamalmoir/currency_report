@@ -1,10 +1,24 @@
+"""
+currency_exchange.trackers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module stores data on currency exchanges, used to track rates and
+their increases, decreases and stability.
+"""
+
 from datetime import datetime
 from decimal import Decimal
 
 class CurrencyTracker:
-    """CurrencyTracker stores information on a currency exchange rate"""
+    """The data model to store data on exchange rates"""
 
     def __init__(self, currencies, rate):
+        """Initilaises a CurrencyTracker.
+
+        :param currencies: A tuple containing the currencies to track.
+        :param rate: A tuple containing the exchange rate at the time
+        of initialisation and the corresponding timestamp
+        """
         self.CURRENCIES = currencies
         self.created = datetime.now()
         self.updated = datetime.now()
@@ -14,7 +28,13 @@ class CurrencyTracker:
         self.data = [rate]
 
     def add_rate(self, new_rate):
-        print(str(self.streak))
+        """Adds a new rate to the rate tracker and calculates streaks
+        and highs.
+
+        :param new_rate: A tuple containing the new rate and the
+        timestamp associated with it.
+        """
+
         direction, magnitude = self.streak
         high_time, high_val = self.all_time_high
         prev_time, prev_val = self.data[-1]
