@@ -1,3 +1,10 @@
+"""
+currency_exchange.reporting
+
+This module contain grabs exchange rates, writes CurrencyTracker
+objects to a file and emails a report to the given email.
+"""
+
 import sys
 import pickle
 import os.path
@@ -14,7 +21,9 @@ def main():
     email = ''
     password = ''
 
+    #Load trackers and record new rates to them.
     if len(sys.argv) == 1:
+        #Check if tracking file exists.
         if os.path.isfile(file_name):
             rates_to_watch = read_file(file_name)
 
@@ -23,11 +32,15 @@ def main():
                 write_file(file_name, rates_to_watch)
 
             send_email(rates_to_watch, email, password)
+
+        #Tracking file doesn't exist, tell user to add trackers.
         else:
             print("Error: No currencies are being tracked.")
             print("Please run the following command:")
             print("python currency_report.py CURRENCY1 CURRENCY2")
             print("eg. python currency_report.py GBP JPY")
+
+    #Create new currency tracker.
     elif len(sys.argv) == 3:
         valid_currencies = open('currencies.txt').read()
 
@@ -60,19 +73,38 @@ def write_file(file_name, contents):
 
 
 def grab_rate(currencies):
+    """Grabs exchange rate from Yahoo Finance.
+
+    :param currencies: A tuple containing the currencies to get the
+    rare for.
+    """
+
+    #Build request url.
     url_template = ('http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&'
                     's={cur1}{cur2}=X')
     url = url_template.format(cur1=currencies[0], cur2=currencies[1])
+
+    #Grab data from url.
     response = urllib.request.urlopen(url)
     data = response.read().decode('utf-8')
     rate = (datetime.now(), Decimal(data[:-1]))
+
     print("Current rate: {rate}".format(rate=str(rate[1])))
+
     return rate
 
 
 def send_email(rates_to_watch, email, password):
+    """Complies a report on tracked rates and emails them.
+
+    :param rates_to_watch: A list of CurrencyTrackers.
+    :param email: The email to send report to.
+    :param password: The password for the email account.
+    """
+
     text = ""
 
+    #Create report.
     for rate in rates_to_watch:
         cur_rate = rate.get_current_rate()[1]
         streak_dir, streak_mag = rate.get_streak()
@@ -108,6 +140,7 @@ def send_email(rates_to_watch, email, password):
     msg['Subject'] = "Currency Report"
     msg['To'] = email
 
+    #Attempt to send email.
     try:
         connection = SMTP('smtp.gmail.com')
         connection.login(email, password)
