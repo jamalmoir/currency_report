@@ -9,29 +9,33 @@ import sys
 import pickle
 import os.path
 import urllib.request
+import datetime
+import decimal
 from trackers import CurrencyTracker
-from datetime import datetime
-from decimal import Decimal
-from smtplib import SMTP_SSL as SMTP
-from email.mime.text import MIMEText
+import smtplib
+import email.mime.text
 
 
 def main():
-    file_name = 'rates_to_watch.pkl'
-    email = ''
-    password = ''
+    FILE_NAME = 'rates_to_watch.pkl'
+    EMAIL = ''
+    PASSWORD = ''
+
+    __, currency_1, currency_2 = sys.argv
+    arg_count = len(sys.argv)
 
     #Load trackers and record new rates to them.
-    if len(sys.argv) == 1:
+    if arg_count == 1:
+
         #Check if tracking file exists.
-        if os.path.isfile(file_name):
-            rates_to_watch = read_file(file_name)
+        if os.path.isfile(FILE_NAME):
+            rates_to_watch = read_file(FILE_NAME)
 
             for rate in rates_to_watch:
                 rate.add_rate(grab_rate(rate.get_currencies()))
-                write_file(file_name, rates_to_watch)
+                write_file(FILE_NAME, rates_to_watch)
 
-            send_email(rates_to_watch, email, password)
+            send_email(rates_to_watch, EMAIL, PASSWORD)
 
         #Tracking file doesn't exist, tell user to add trackers.
         else:
@@ -41,25 +45,29 @@ def main():
             print("eg. python currency_report.py GBP JPY")
 
     #Create new currency tracker.
-    elif len(sys.argv) == 3:
+    elif arg_count == 3:
         valid_currencies = open('currencies.txt').read()
 
-        if sys.argv[1] in valid_currencies and sys.argv[2] in valid_currencies:
-            currencies = (sys.argv[1], sys.argv[2])
+        #Check if currencies are valid.
+        if currency_1 in valid_currencies and currency_1 in valid_currencies:
+            currencies = (currency_1, currency_2)
             new_tracker = CurrencyTracker(currencies, grab_rate(currencies))
 
-            if os.path.isfile(file_name):
-                rates_to_watch = read_file(file_name)
+            #Edit existing tracker file.
+            if os.path.isfile(FILE_NAME):
+                rates_to_watch = read_file(FILE_NAME)
                 rates_to_watch.append(new_tracker)
-                write_file(file_name, rates_to_watch)
+                write_file(FILE_NAME, rates_to_watch)
+
+            #Create new tracker file.
             else:
                 rates_to_watch = [new_tracker]
-                write_file(file_name, rates_to_watch)
+                write_file(FILE_NAME, rates_to_watch)
         else:
             print("Error: Invalid currency codes.")
     else:
         print("Error: Invalid number of arguments. {count}"
-              "argument(s).".format(count=len(sys.argv)))
+              "argument(s).".format(count=arg_count))
 
 
 def read_file(file_name):
@@ -79,15 +87,17 @@ def grab_rate(currencies):
     rare for.
     """
 
+    currency_1, currency_2 = currencies
+
     #Build request url.
     url_template = ('http://finance.yahoo.com/d/quotes.csv?e=.csv&f=l1&'
                     's={cur1}{cur2}=X')
-    url = url_template.format(cur1=currencies[0], cur2=currencies[1])
+    url = url_template.format(cur1=currency_1, cur2=currency_2)
 
     #Grab data from url.
     response = urllib.request.urlopen(url)
     data = response.read().decode('utf-8')
-    rate = (datetime.now(), Decimal(data[:-1]))
+    rate = (datetime.now(), decimal.Decimal(data[:-1]))
 
     print("Current rate: {rate}".format(rate=str(rate[1])))
 
@@ -102,9 +112,9 @@ def send_email(rates_to_watch, email, password):
     :param password: The password for the email account.
     """
 
+    #Create email report.
     text = ""
 
-    #Create report.
     for rate in rates_to_watch:
         cur_rate = rate.get_current_rate()[1]
         streak_dir, streak_mag = rate.get_streak()
@@ -136,13 +146,13 @@ def send_email(rates_to_watch, email, password):
         report += streak_text
         text += report
 
-    msg = MIMEText(text, 'plain')
+    msg = email.mime.text.MIMEText(text, 'plain')
     msg['Subject'] = "Currency Report"
     msg['To'] = email
 
     #Attempt to send email.
     try:
-        connection = SMTP('smtp.gmail.com')
+        connection = smtplib.SMTP_SSL('smtp.gmail.com')
         connection.login(email, password)
         try:
             connection.sendmail(email, email, msg.as_string())
