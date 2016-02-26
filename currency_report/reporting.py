@@ -1,7 +1,7 @@
 """
 currency_exchange.reporting
 
-This module contain grabs exchange rates, writes CurrencyTracker
+This module grabs exchange rates, writes CurrencyTracker
 objects to a file and emails a report to the given email.
 """
 
