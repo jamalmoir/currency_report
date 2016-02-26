@@ -27,8 +27,11 @@ def send_email(subject, message, recipient, email_address, password):
     msg['To'] = email_address
 
     try:
-        connection = smtplib.SMTP_SSL('smtp.gmail.com')
+        connection = smtplib.SMTP('smtp.gmail.com', 587)
+        connection.ehlo()
+        connection.starttls()
+        connection.ehlo()
         with connection.login(email_address, password):
-            connection.sendmail(email_address, recepient, msg.as_string())
+            connection.sendmail(email_address, recipient, msg.as_string())
     except Exception as e:
         print("Error sending email: {error}".format(error=str(e)))
