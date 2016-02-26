@@ -46,28 +46,16 @@ class CurrencyTracker:
         elif rate_val < low_val:
             self.all_time_low = new_rate
 
-        if direction > 0:
-            if rate_val > prev_val:
-                self.streak = (1, magnitude + 1)
-            elif rate_val < prev_val:
-                self.streak = (-1, 1)
-            else:
-                self.streak = (0,1)
-        elif direction < 0:
-            if rate_val < prev_val:
-                self.streak = (-1, magnitude + 1)
-            elif rate_val > prev_val:
-                self.streak = (1, 1)
-            else:
-                self.streak = (0, 1)
+        if rate_val == prev_val:
+            new_direction = 0
+        elif rate_val < prev_val:
+            new_direction = -1
         else:
-            if rate_val == prev_val:
-                self.streak = (0, magnitude + 1)
-            elif rate_val > prev_val:
-                self.streak = (1, 1)
-            else:
-                self.streak = (-1, 1)
+            new_direction = 1
 
+        new_magnitude = magnitude + 1 if direction == new_direction else 1
+
+        self.streak = (new_direction, new_magnitude)
         self.data.append(new_rate)
         self.updated = datetime.now()
 
