@@ -37,12 +37,13 @@ class CurrencyTracker:
 
         direction, magnitude = self.streak
         high_time, high_val = self.all_time_high
+        low_time, low_val = self.all_time_low
         prev_time, prev_val = self.data[-1]
         rate_time, rate_val = new_rate
 
         if rate_val > high_val:
             self.all_time_high = new_rate
-        elif rate_val < high_val:
+        elif rate_val < low_val:
             self.all_time_low = new_rate
 
         if direction > 0:
