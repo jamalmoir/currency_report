@@ -45,7 +45,9 @@ def main():
     # Create new currency tracker.
     elif arg_count == 3:
         __, currency_1, currency_2 = sys.argv
-        valid_currencies = open('currencies.txt').read()
+
+        with open('currencies.txt') as file:
+            valid_currencies = file.read()
 
         # Check if currencies are valid.
         if currency_1 in valid_currencies and currency_1 in valid_currencies:
