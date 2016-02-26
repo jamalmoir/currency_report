@@ -1,5 +1,5 @@
 """
-currency_exchange.trackers
+currency_report.trackers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module stores data on currency exchanges, used to track rates and
