@@ -33,7 +33,7 @@ def main():
 
             report = generate_report(rates_to_watch)
             utils.send_email('Exchange Rate Report', report,
-                                             EMAIL, EMAIL, PASSWORD)
+                             EMAIL, EMAIL, PASSWORD)
 
         # Tracking file doesn't exist, tell user to add trackers.
         else:
@@ -53,7 +53,7 @@ def main():
         if currency_1 in valid_currencies and currency_1 in valid_currencies:
             currencies = (currency_1, currency_2)
             new_tracker = trackers.CurrencyTracker(currencies,
-                                                  grab_rate(currencies))
+                                                   grab_rate(currencies))
 
             # Edit existing tracker file.
             if os.path.isfile(FILE_NAME):

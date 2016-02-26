@@ -9,6 +9,7 @@ their increases, decreases and stability.
 from datetime import datetime
 from decimal import Decimal
 
+
 class CurrencyTracker:
     """The data model to store data on exchange rates"""
 
@@ -24,7 +25,7 @@ class CurrencyTracker:
         self.updated = datetime.now()
         self.all_time_high = rate
         self.all_time_low = rate
-        self.streak = (0,0)
+        self.streak = (0, 0)
         self.data = [rate]
 
     def add_rate(self, new_rate):
